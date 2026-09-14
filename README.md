@@ -1,75 +1,153 @@
-# React + TypeScript + Vite
+# Task Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive Task Manager built with React and TypeScript. This project was created as a learning project to practice React state management, TypeScript, Redux Toolkit, routing, and browser storage.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- User Signup
+- User Login
+- Logout functionality
+- Authentication state managed with Redux Toolkit
+- User data persistence using localStorage
+- Task creation
+- Task editing
+- Task deletion
+- Mark tasks as completed
+- Responsive UI
+- React Router navigation
+- TypeScript type safety
+- Component-based architecture
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- Redux Toolkit
+- React Redux
+- React Router
+- Tailwind CSS
+- Vite
+- localStorage
 
-## Expanding the ESLint configuration
+## Authentication Flow
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The application includes a simple frontend authentication flow:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. User creates an account through Signup.
+2. User information is stored in Redux and localStorage.
+3. User is redirected to the Login page.
+4. User logs in using their email and password.
+5. Successful login updates the authentication state.
+6. User is redirected to the Task Manager.
+7. The user's name is displayed on the Task Manager page.
+8. Logging out clears the authentication state and localStorage.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Data Persistence
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The project uses the browser's `localStorage` to persist authentication data.
 
+This means that refreshing the page does not remove the saved user information.
+
+The application stores the authentication state under:
+
+```text
+task-manager-auth
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+> **Note:** This project uses `localStorage` for learning purposes. Passwords are stored in the browser and are not securely hashed. This approach should not be used for a production authentication system.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Structure
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+src/
+│
+├── components/
+│   ├── Form.tsx
+│   ├── List.tsx
+│   │
+│   └── redux/
+│       └── authSlice.ts
+│
+├── pages/
+│   ├── Login.tsx
+│   ├── Signup.tsx
+│   └── TaskPage.tsx
+│
+├── types/
+│   └── task.ts
+│
+├── App.tsx
+├── main.tsx
+└── ...
 ```
+
+## Routes
+
+| Route     | Description          |
+|-----------|-----------------------|
+| `/signup` | Create a new account  |
+| `/login`  | Login to the application |
+| `/tasks`  | Task Manager          |
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone <your-repository-url>
+```
+
+### 2. Navigate into the project
+
+```bash
+cd task-manager
+```
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+The application will then be available through the local development URL provided by Vite.
+
+## Learning Goals
+
+This project helped me practice:
+
+- React components
+- React hooks
+- TypeScript types
+- Props
+- Context API
+- Redux Toolkit
+- Redux state management
+- React Router
+- Form handling
+- Authentication flow
+- localStorage
+- Responsive design with Tailwind CSS
+
+## Future Improvements
+
+Some improvements planned for future versions:
+
+- Protected routes
+- Better form validation
+- Authentication error messages
+- Password hashing with a backend
+- Backend API
+- Database integration
+- Persistent tasks per user
+- Loading states
+- Better authentication architecture
+
+## Disclaimer
+
+This is a learning project and does not implement production-level authentication or security. It should **not** be described as a "secure authentication system" — the current authentication is frontend-only, and passwords are stored in `localStorage` without hashing. This README honestly reflects that it's meant for practicing authentication flow and state management, which is a solid goal for a learning project.
