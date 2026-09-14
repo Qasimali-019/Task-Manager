@@ -1,20 +1,18 @@
-import Signup from "./components/Signup";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import TaskPage from "./pages/TaskPage";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/tasks" element={<TaskPage />} />
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
 
-      </Routes>
-    </BrowserRouter>
-  )
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/tasks" element={<TaskPage />} />
+    </Routes>
+  );
 }
 
 export default App;
-
