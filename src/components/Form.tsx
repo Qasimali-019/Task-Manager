@@ -1,7 +1,16 @@
 import { Newcontext } from "../Context/TaskContext";
 import { useContext, useState } from "react";
+import { useSelector } from "react-redux";
+import type { AuthState } from "../types/task";
+
+
 
 const Form = () => {
+
+  const user = useSelector(
+    (state: { auth: AuthState }) => state.auth.user
+  );
+
   const [name, setName] = useState("");
 
   const todoContext = useContext(Newcontext);
@@ -17,7 +26,11 @@ const Form = () => {
       return;
     }
 
-    addTask(name);
+    if (!user) {          // user can be null so it checks 
+      return
+    }
+
+    addTask(name, user.email);
     setName("");
   };
   return (

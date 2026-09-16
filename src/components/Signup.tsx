@@ -2,34 +2,57 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Signup } from "../components/redux/authSlice";
 import { Link, useNavigate } from "react-router-dom";
+import type { User } from "../types/task";
 
 function SignupPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    const [error, setError] = useState("");
 
     const handleSignup = (e: React.FormEvent) => {
         e.preventDefault();
+        const trimmedName = name.trim();
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
 
-        if (!name.trim() || !email.trim() || !password.trim()) {
+        if (!trimmedName) {
+            setError("Name is required");
+            return;
+        }
+        if (!trimmedEmail.includes("@")) {
+            setError("Email must contain @");
+            return;
+        }
+        if (!trimmedPassword) {
+            setError("Password is required");
             return;
         }
 
-        dispatch(
-            Signup({
-                name,
-                email,
-                password,
-            })
-        );
+        const storedAuth = localStorage.getItem("task-manager-auth");
 
-        navigate("/login")
+        if (storedAuth) {
+            const auth = JSON.parse(storedAuth);
+
+            const emailExists = auth.users.some(  /// some (does atleast one user match the condition?)
+                (user: User) =>
+                    user.email.toLowerCase() ===
+                    email.trim().toLowerCase()
+            );
+
+            if (emailExists) {
+                setError("Email already exists");
+                return;
+            }
+        }
+
+        dispatch(Signup({
+            name: trimmedName, email: trimmedEmail, password: trimmedPassword
+        }));
+        navigate("/login");
     };
-
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#101631]">
@@ -47,6 +70,7 @@ function SignupPage() {
                     </div>
                 </div>
                 <form onSubmit={handleSignup} className="flex flex-col gap-5 mt-8">
+                    {error && <p className="text-red-400">{error}</p>}
                     <input
                         type="name"
                         placeholder="Name"

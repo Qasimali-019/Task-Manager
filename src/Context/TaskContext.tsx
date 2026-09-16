@@ -6,18 +6,26 @@ export const Newcontext = createContext<TodoContext | undefined>(undefined);
 export const TodoContextProvider = (props: TodoContextProp) => {
     const [task, setTask] = useState<Task[]>(() => {
         const storedTasks = localStorage.getItem("task-manager-tasks")
-        return storedTasks ? JSON.parse(storedTasks) as Task[] : []
+        if (storedTasks) {
+            return JSON.parse(storedTasks) as Task[];
+        } else {
+            return [];
+        }
     })
 
     useEffect(() => {
-        localStorage.setItem("task-manager-tasks", JSON.stringify(task))
+        localStorage.setItem("task-manager-tasks",
+            JSON.stringify(task))
     }, [task])
 
-    const addTask = (name: string) => {
+
+
+    const addTask = (name: string, userEmail: string) => {      //userEmail added to give seperate dashboards to seperate users
         const newTask: Task = {
             id: Date.now(),
             name: name,
             isCompleted: false,
+            userEmail: userEmail
         }
         setTask((prevTask) => [newTask, ...prevTask])
     }

@@ -6,6 +6,7 @@ const storedAuth = localStorage.getItem("task-manager-auth")
 const initialState: AuthState = storedAuth
     ? JSON.parse(storedAuth) as AuthState
     : {
+        users: [],
         user: null,
         isLoggedIn: false,
         password: ""
@@ -21,34 +22,47 @@ const authSlice = createSlice({
     reducers: {
 
         Signup: (state, action: PayloadAction<User>) => {
-            state.user = action.payload
-            state.password = action.payload.password
+            state.users.push(action.payload)
+            state.user = null
+            state.password = ""
             state.isLoggedIn = false
             saveAuth(state)
+
 
         },
 
 
         login: (state, action: PayloadAction<LoginData>) => {
-            if (
-                state.user &&
-                state.user.email === action.payload.email &&
-                state.password === action.payload.password
-            ) {
+            const foundUser = state.users.find(
+                (user) =>
+                    user.email.toLowerCase() ===
+                    action.payload.email.toLowerCase() &&
+                    user.password === action.payload.password
+            )
+
+            if (foundUser) {
+                state.user = foundUser
+                state.password = foundUser.password
                 state.isLoggedIn = true
-                saveAuth(state)
-                return
+            } else {
+                state.user = null
+                state.password = ""
+                state.isLoggedIn = false
             }
 
-            state.isLoggedIn = false
             saveAuth(state)
         },
+        /* logout: (state) => {                  state.user = null was deleting the user after logging out,user after creating account can login only once or 
+                                                                    for login user do need to create account everytime
+             state.user = null,
+                 state.isLoggedIn = false
+ 
+         }    */
+
 
         logout: (state) => {
-            state.user = null,
-                state.isLoggedIn = false
-            state.password = ""
-            localStorage.removeItem("task-manager-auth")
+            state.isLoggedIn = false
+            saveAuth(state)
         }
     }
 })

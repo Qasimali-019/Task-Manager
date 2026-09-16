@@ -4,38 +4,47 @@ import { login } from "../components/redux/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import type { AuthState } from "../types/task";
 
+
 function Login() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const user = useSelector(
-        (state: { auth: AuthState }) => state.auth.user
-    );
+    const users = useSelector((state: { auth: AuthState }) => state.auth.users);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!email.trim() || !password.trim()) {
+        if (!email.trim() || !password.trim()) {  // .trim(remove spaces from start and end )
+            setError("Email and password are reuired")
             return;
         }
 
-        if (
-            user &&
-            user.email === email &&
-            user.password === password
-        ) {
-            dispatch(
-                login({
-                    email: email,
-                    password: password,
-                })
-            );
 
-            navigate("/tasks");
+        const foundUser = users.find(
+            (user) =>
+                user.email.toLowerCase() === email.trim().toLowerCase() &&
+                user.password === password.trim()
+
+        )
+        if (!foundUser) {
+            setError("User not found")
+            return
         }
+
+
+        dispatch(
+            login({
+                email: email.trim(),
+                password: password.trim(),
+            })
+        );
+
+        navigate("/tasks");
+
     };
 
     return (
@@ -82,7 +91,7 @@ function Login() {
                     >
                         Login
                     </button>
-
+                    {error && (<p className="text-red-400 text-sm"> {error} </p>)}
                     <p className="text-white mt-4">
                         Don't have an account?{" "}
                         <Link
