@@ -20,12 +20,14 @@ export const TodoContextProvider = (props: TodoContextProp) => {
 
 
 
-    const addTask = (name: string, userEmail: string) => {      //userEmail added to give seperate dashboards to seperate users
+    const addTask = (name: string, userEmail: string, priority: "low" | "medium" | "high", dueDate: string) => {      //userEmail added to give seperate dashboards to seperate users
         const newTask: Task = {
             id: Date.now(),
             name: name,
             isCompleted: false,
-            userEmail: userEmail
+            userEmail: userEmail,
+            priority: priority,
+            dueDate: dueDate
         }
         setTask((prevTask) => [newTask, ...prevTask])
     }

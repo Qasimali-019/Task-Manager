@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../components/redux/authSlice";
+import { findCurrentUser, login } from "../components/redux/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import type { AuthState } from "../types/task";
 
@@ -9,13 +9,13 @@ function Login() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const users = useSelector((state: { auth: AuthState }) => state.auth.users);
+    const { users, user, isLoggedIn } = useSelector((state: { auth: AuthState }) => state.auth);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = (e: FormEvent) => {
         e.preventDefault();
 
         if (!email.trim() || !password.trim()) {  // .trim(remove spaces from start and end )
@@ -23,13 +23,7 @@ function Login() {
             return;
         }
 
-
-        const foundUser = users.find(
-            (user) =>
-                user.email.toLowerCase() === email.trim().toLowerCase() &&
-                user.password === password.trim()
-
-        )
+        const foundUser = findCurrentUser(users, email, password)
         if (!foundUser) {
             setError("User not found")
             return
@@ -46,6 +40,12 @@ function Login() {
         navigate("/tasks");
 
     };
+    // if user is logged, navigating to login url will always navigate the user to task-page
+    useEffect(() => {
+        if (user || isLoggedIn) {
+            navigate("/tasks");
+        }
+    }, [user, isLoggedIn, navigate]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#101631]">

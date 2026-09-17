@@ -9,8 +9,18 @@ const initialState: AuthState = storedAuth
         users: [],
         user: null,
         isLoggedIn: false,
-        password: ""
     }
+
+
+// made the resuable function to use in login as well 
+export const findCurrentUser = (users: User[], email: string, password: string) => {
+    const currentUser = users.find((user) =>
+        user.email.toLowerCase() === email.toLowerCase() &&
+        user.password === password
+    )
+
+    return currentUser
+}
 
 const saveAuth = (state: AuthState) => {
     localStorage.setItem("task-manager-auth", JSON.stringify(state))
@@ -22,46 +32,37 @@ const authSlice = createSlice({
     reducers: {
 
         Signup: (state, action: PayloadAction<User>) => {
-            state.users.push(action.payload)
+            const newUser: User = {
+                ...action.payload,
+                role: "user"
+            }
+            state.users.push(newUser)
             state.user = null
-            state.password = ""
             state.isLoggedIn = false
             saveAuth(state)
-
-
         },
 
-
         login: (state, action: PayloadAction<LoginData>) => {
-            const foundUser = state.users.find(
-                (user) =>
-                    user.email.toLowerCase() ===
-                    action.payload.email.toLowerCase() &&
-                    user.password === action.payload.password
-            )
+            const { email, password } = action.payload
+            const currentUser = findCurrentUser(state.users, email, password)
 
-            if (foundUser) {
-                state.user = foundUser
-                state.password = foundUser.password
+
+            // removed pasword; so it won't show up in local storage
+            if (currentUser) {
+                state.user = currentUser
                 state.isLoggedIn = true
             } else {
                 state.user = null
-                state.password = ""
                 state.isLoggedIn = false
             }
 
             saveAuth(state)
         },
-        /* logout: (state) => {                  state.user = null was deleting the user after logging out,user after creating account can login only once or 
-                                                                    for login user do need to create account everytime
-             state.user = null,
-                 state.isLoggedIn = false
- 
-         }    */
 
 
         logout: (state) => {
-            state.isLoggedIn = false
+            state.user = null,
+                state.isLoggedIn = false
             saveAuth(state)
         }
     }

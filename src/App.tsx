@@ -1,4 +1,4 @@
-import Signup from "./components/Signup";
+import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import TaskPage from "./pages/TaskPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
