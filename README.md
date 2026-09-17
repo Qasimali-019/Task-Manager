@@ -94,7 +94,7 @@ src/
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Qasimali-019/Task-Manager/tree/masterl
 ```
 
 ### 2. Navigate into the project
