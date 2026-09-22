@@ -49,7 +49,8 @@ function SignupPage() {
         }
 
         dispatch(Signup({
-            name: trimmedName, email: trimmedEmail, password: trimmedPassword
+            name: trimmedName, email: trimmedEmail, password: trimmedPassword,
+            role: "user"
         }));
         navigate("/login");
     };
