@@ -96,7 +96,7 @@ function List() {
         <button
           onClick={() => setFilter("high")}
           className={`rounded-lg px-4 py-2 text-sm ${filter === "high"
-            ? "bg-red-400 text-white"
+            ? "bg-amber-400 text-white"
             : "bg-[#23284a] text-white/60"
             }`}
         >
@@ -106,7 +106,7 @@ function List() {
         <button
           onClick={() => setFilter("medium")}
           className={`rounded-lg px-4 py-2 text-sm ${filter === "medium"
-            ? "bg-yellow-400 text-[#181d39]"
+            ? "bg-amber-400 text-[#181d39]"
             : "bg-[#23284a] text-white/60"
             }`}
         >
@@ -116,7 +116,7 @@ function List() {
         <button
           onClick={() => setFilter("low")}
           className={`rounded-lg px-4 py-2 text-sm ${filter === "low"
-            ? "bg-green-400 text-[#181d39]"
+            ? "bg-amber-400 text-[#181d39]"
             : "bg-[#23284a] text-white/60"
             }`}
         >

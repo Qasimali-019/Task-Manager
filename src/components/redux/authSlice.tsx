@@ -42,6 +42,23 @@ const authSlice = createSlice({
             saveAuth(state)
         },
 
+
+        createAdmin: (state) => {
+
+            const adminExists = state.users.some((user) => user.role === "admin")
+
+            if (!adminExists) {
+                const admin: User = {
+                    name: "admin",
+                    email: "admin@gmail.com",
+                    password: "admin1234",
+                    role: "admin"
+                }
+                state.users.push(admin)
+                saveAuth(state)
+            }
+        },
+
         login: (state, action: PayloadAction<LoginData>) => {
             const { email, password } = action.payload
             const currentUser = findCurrentUser(state.users, email, password)
@@ -64,9 +81,21 @@ const authSlice = createSlice({
             state.user = null,
                 state.isLoggedIn = false
             saveAuth(state)
+        },
+
+
+        resetPassword: (state, action: PayloadAction<{ email: string; newPassword: string; }>) => {
+
+            const { email, newPassword } = action.payload
+            const currentUser = state.users.find((user) => user.email.toLowerCase() === email.toLowerCase());
+            if (currentUser) {
+                currentUser.password = newPassword
+
+            }
+            saveAuth(state)
         }
     }
 })
 
-export const { login, logout, Signup } = authSlice.actions
+export const { login, logout, Signup, createAdmin, resetPassword } = authSlice.actions
 export default authSlice.reducer

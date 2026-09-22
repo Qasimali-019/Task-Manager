@@ -37,14 +37,27 @@ function Login() {
             })
         );
 
-        navigate("/tasks");
+        if (foundUser.role === "admin") {
+            navigate("/admin")
+        }
+
+        else {
+            navigate("/tasks")
+        }
 
     };
     // if user is logged, navigating to login url will always navigate the user to task-page
     useEffect(() => {
+
         if (user || isLoggedIn) {
-            navigate("/tasks");
+            if (user?.role === "admin") {
+                navigate("/admin")
+            }
+            else {
+                navigate("/tasks")
+            }
         }
+
     }, [user, isLoggedIn, navigate]);
 
     return (
@@ -101,6 +114,7 @@ function Login() {
                             Signup
                         </Link>
                     </p>
+                    <div className="flex justify-end"> <Link to="/forgot-password" className="text-[#00AFFF] text-sm hover:underline" > Forgot Password? </Link> </div>
 
                 </form>
             </div>

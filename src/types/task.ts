@@ -7,6 +7,7 @@ export type Task = {
     userEmail: string,                            // to give authorized user it own tasks/dashboard(not one dashboard access by all)
     priority: "low" | "medium" | "high",         // added for dashboard cards
     dueDate: string
+    createdAt: string
 
 }
 
@@ -41,7 +42,29 @@ export type AuthState = {
 }
 
 export type LoginData = {
-    email: string;
-    password: string;
+    email: string,
+    password: string
 };
 
+export type ProtectedRoutProp = {
+    children: React.ReactNode,
+    requiredRole?: "user" | "admin"
+}
+
+
+export type AdminDashboardCardsProps = {
+
+    title: string,
+    value: number
+
+}
+
+export type AdminTableProps = {
+    headers: string[];
+    children: React.ReactNode;
+};
+
+
+export type AdminLayoutProps = {
+    children: React.ReactNode
+}

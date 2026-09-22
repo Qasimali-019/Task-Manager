@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { login, logout } from "./redux/authSlice";
+import { login, logout, createAdmin } from "./redux/authSlice";
 
 function AuthTest() {
 
@@ -7,17 +7,20 @@ function AuthTest() {
     const user = useSelector((state: any) => state.auth.user)
     const isLoggedIn = useSelector((state: any) => state.auth.isLoggedIn)
 
-    const handleLogin = () => {
+    const handleLogin = (email: string, password: string) => {
         dispatch(login({
-            email: "qasim.aliii019@gmail.com",
-            password: "password"
+            email,
+            password
         }))
     }
+
+
+    const handleCreateAdmin = () => {
+        dispatch(createAdmin());
+    };
     const handleLogout = () => {
         dispatch(logout())
     }
-
-
 
     return (
         <div>
@@ -34,7 +37,21 @@ function AuthTest() {
                 </div>
             )}
 
-            <button onClick={handleLogin}>Login</button>
+
+            <button onClick={handleCreateAdmin}>
+                Create Admin
+            </button>
+
+            <button onClick={() => handleLogin(
+                "qasim.aliii019@gmail.com",
+                "Q@sim1234"
+            )}>Login user</button>
+
+
+            <button onClick={() => handleLogin(
+                "admin@gmail.com",
+                "admin1234"
+            )}>Login admin</button>
 
             <button onClick={handleLogout}>Logout</button>
         </div>

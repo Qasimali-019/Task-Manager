@@ -27,7 +27,8 @@ export const TodoContextProvider = (props: TodoContextProp) => {
             isCompleted: false,
             userEmail: userEmail,
             priority: priority,
-            dueDate: dueDate
+            dueDate: dueDate,
+            createdAt: new Date().toISOString()
         }
         setTask((prevTask) => [newTask, ...prevTask])
     }
