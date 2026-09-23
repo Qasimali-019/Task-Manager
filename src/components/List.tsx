@@ -8,7 +8,8 @@ import { useSelector } from "react-redux";
 function List() {
   const context = useContext(Newcontext);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [statusfilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all")
   const user = useSelector(
     (state: { auth: AuthState }) => state.auth.user
   );
@@ -29,12 +30,16 @@ function List() {
       .toLowerCase()
       .includes(search.toLowerCase());
     const matchesFilter =
-      filter === "all" ||
-      (filter === "pending" && !task.isCompleted) ||
-      (filter === "completed" && task.isCompleted) ||
-      task.priority === filter;
+      statusfilter === "all" ||
+      (statusfilter === "pending" && !task.isCompleted) ||
+      (statusfilter === "completed" && task.isCompleted)
 
-    return matchesSearch && matchesFilter;
+    const matchesPriority =
+      priorityFilter === "all" ||
+      (task.priority === priorityFilter)
+
+
+    return matchesSearch && matchesFilter && matchesPriority;
   });
 
 
@@ -63,81 +68,41 @@ function List() {
       </div>
 
       <div className="mb-5 flex flex-wrap gap-2">
-        <button
-          onClick={() => setFilter("all")}
-          className={`rounded-lg px-4 py-2 text-sm ${filter === "all"
-            ? "bg-amber-400 text-[#181d39]"
-            : "bg-[#23284a] text-white/60"
-            }`}
-        >
-          All
-        </button>
 
-        <button
-          onClick={() => setFilter("pending")}
-          className={`rounded-lg px-4 py-2 text-sm ${filter === "pending"
-            ? "bg-amber-400 text-[#181d39]"
-            : "bg-[#23284a] text-white/60"
-            }`}
-        >
-          Pending
-        </button>
 
-        <button
-          onClick={() => setFilter("completed")}
-          className={`rounded-lg px-4 py-2 text-sm ${filter === "completed"
-            ? "bg-amber-400 text-[#181d39]"
-            : "bg-[#23284a] text-white/60"
-            }`}
-        >
-          Completed
-        </button>
+        <select
+          value={statusfilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg bg-[#23284a] px-4 py-2 text-sm text-white/70 outline-none">
 
-        <button
-          onClick={() => setFilter("high")}
-          className={`rounded-lg px-4 py-2 text-sm ${filter === "high"
-            ? "bg-amber-400 text-white"
-            : "bg-[#23284a] text-white/60"
-            }`}
-        >
-          High
-        </button>
+          <option value="all">All</option>
+          <option value="pendingl">Pending</option>
+          <option value="completed">Completed</option>
 
-        <button
-          onClick={() => setFilter("medium")}
-          className={`rounded-lg px-4 py-2 text-sm ${filter === "medium"
-            ? "bg-amber-400 text-[#181d39]"
-            : "bg-[#23284a] text-white/60"
-            }`}
-        >
-          Medium
-        </button>
+        </select>
 
-        <button
-          onClick={() => setFilter("low")}
-          className={`rounded-lg px-4 py-2 text-sm ${filter === "low"
-            ? "bg-amber-400 text-[#181d39]"
-            : "bg-[#23284a] text-white/60"
-            }`}
-        >
-          Low
-        </button>
-
+        <select
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+          className="rounded-lg bg-[#23284a] px-4 py-2 text-sm text-white/70 outline-none">
+          <option value="all">All</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="">Low</option>
+        </select>
 
         <button
           type="button"
           onClick={() => {
-            setSearch("");
-            setFilter("all");
+            setSearch("")
+            setStatusFilter("all")
+            setPriorityFilter("all")
           }}
           className="rounded-lg bg-[#23284a] px-4 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white"
         >
           Clear
         </button>
       </div>
-
-
-
 
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#23284a] shadow-xl">
         {filteredTasks.length > 0 ? (
@@ -168,6 +133,5 @@ function List() {
     </section>
   );
 }
-
 export default List;
 

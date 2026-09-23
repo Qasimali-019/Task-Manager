@@ -7,8 +7,8 @@ import AdminTable from "./AdminTable";
 
 function AdminTasks() {
     const [search, setSearch] = useState("")
-    const [userFilter, setUserFilter] = useState("")
-    const [statusFilter, setStatusFilter] = useState("")
+    const [userFilter, setUserFilter] = useState("all")
+    const [statusFilter, setStatusFilter] = useState("all")
 
     const users = useSelector(
         (state: { auth: AuthState }) => state.auth.users
@@ -36,9 +36,6 @@ function AdminTasks() {
         setUserFilter("all")
         setStatusFilter("all")
     }
-
-
-
 
     return (
         <div className="min-h-screen bg-[#101631] px-4 py-6 sm:px-6 sm:py-8">

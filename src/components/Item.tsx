@@ -2,7 +2,7 @@
 import { useContext, useState } from "react";
 import { type TaskItem } from "../types/task";
 import { Newcontext } from "../Context/TaskContext";
-import { SquarePen, CircleCheckBig, Trash2 } from "lucide-react";
+import { SquarePen, Trash2 } from "lucide-react";
 
 const Task = ({ task }: TaskItem) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -61,16 +61,14 @@ const Task = ({ task }: TaskItem) => {
 
 
         <div className="shrink-0">
-          {task.isCompleted ? (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/10">
-              <CircleCheckBig
-                size={20}
-                className="text-green-400"
-              />
-            </div>
-          ) : (
-            <div className="h-8 w-8 rounded-full border-2 border-white/20" />
-          )}
+          <input
+            type="checkbox"
+            checked={task.isCompleted}
+            onChange={() => isCompleted(task.id)}
+            disabled={task.isCompleted}
+            aria-label={`Mark ${task.name} as completed`}
+            className="h-8 w-8 cursor-pointer accent-green-500 disabled:cursor-not-allowed"
+          />
         </div>
 
 
@@ -111,13 +109,6 @@ const Task = ({ task }: TaskItem) => {
               <Trash2 size={18} />
             </button>
 
-            <button
-              onClick={() => isCompleted(task.id)}
-              className="rounded-lg p-2 text-green-400 transition hover:bg-green-400/10 hover:text-green-300"
-              aria-label="Complete task"
-            >
-              <CircleCheckBig size={18} />
-            </button>
           </div>
         )}
       </div>
