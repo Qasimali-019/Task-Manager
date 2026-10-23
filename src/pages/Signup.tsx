@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { Signup } from "../components/redux/authSlice";
 import { Link, useNavigate } from "react-router-dom";
-import type { User } from "../types/task";
 
-function SignupPage() {
-    const dispatch = useDispatch();
+function Signup() {
     const navigate = useNavigate();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    const handleSignup = (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         const trimmedName = name.trim();
         const trimmedEmail = email.trim();
@@ -31,29 +27,30 @@ function SignupPage() {
             return;
         }
 
-        const storedAuth = localStorage.getItem("task-manager-auth");
 
-        if (storedAuth) {
-            const auth = JSON.parse(storedAuth);
 
-            const emailExists = auth.users.some(  /// some (does atleast one user match the condition?)
-                (user: User) =>
-                    user.email.toLowerCase() ===
-                    email.trim().toLowerCase()
-            );
-
-            if (emailExists) {
-                setError("Email already exists");
-                return;
+        const response = fetch(" http://localhost:5000/api/auth/signup",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: trimmedName,
+                    email: trimmedEmail,
+                    password: trimmedPassword
+                })
             }
-        }
+        );
 
-        dispatch(Signup({
-            name: trimmedName, email: trimmedEmail, password: trimmedPassword,
-            role: "user"
-        }));
+        const data = await (await response).json();
+        if (!(await response).ok) {
+            setError(data.message || "Signup failed");
+            return;
+        }
         navigate("/login");
-    };
+    }
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#101631]">
@@ -117,4 +114,5 @@ function SignupPage() {
         </div>
     );
 }
-export default SignupPage;
+
+export default Signup;

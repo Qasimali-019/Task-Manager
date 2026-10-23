@@ -68,3 +68,16 @@ export type AdminTableProps = {
 export type AdminLayoutProps = {
     children: React.ReactNode
 }
+
+export type BackendTask = {
+    isCompleted: boolean | undefined
+    name: any
+    id: number;
+    user_id: number;
+    title: string;
+    description: string | null;
+    priority: "low" | "medium" | "high";
+    status: "pending" | "completed";
+    due_date: string | null;
+    created_at: string;
+};

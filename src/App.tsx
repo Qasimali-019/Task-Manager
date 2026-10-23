@@ -17,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Login />} />
+
         <Route path="/auth-test" element={<AuthTest />} />
         <Route path="*" element={<NotFound />} />
         <Route

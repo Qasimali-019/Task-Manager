@@ -1,47 +1,42 @@
 
-import { useContext, useState } from "react";
-import { Newcontext } from "../Context/TaskContext";
+import { useState } from "react";
 import Items from "./Item";
-import type { AuthState } from "../types/task";
-import { useSelector } from "react-redux";
+import type { BackendTask } from "../types/task";
 
-function List() {
-  const context = useContext(Newcontext);
+type ListProps = {
+  tasks: BackendTask[];
+  onDeleteTask: (taskId: number) => Promise<void>;
+  onUpdateTask: (
+    taskId: number,
+    title: string,
+    description: string | null,
+    priority: "low" | "medium" | "high",
+    due_date: string | null,
+    status: "pending" | "completed"
+  ) => Promise<boolean>;
+};
+
+function List({ tasks, onDeleteTask, onUpdateTask }: ListProps) {
+
   const [search, setSearch] = useState("");
   const [statusfilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all")
-  const user = useSelector(
-    (state: { auth: AuthState }) => state.auth.user
-  );
 
-  if (!context || !user) {
-    return null;
-  }
-
-  const { task } = context;
-
-  const usertasks = task.filter(
-    (task) => task.userEmail === user.email
-  );
-
-
-  const filteredTasks = usertasks.filter((task) => {
-    const matchesSearch = task.name
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.title
       .toLowerCase()
       .includes(search.toLowerCase());
-    const matchesFilter =
+
+    const matchesStatus =
       statusfilter === "all" ||
-      (statusfilter === "pending" && !task.isCompleted) ||
-      (statusfilter === "completed" && task.isCompleted)
+      task.status === statusfilter;
 
     const matchesPriority =
       priorityFilter === "all" ||
-      (task.priority === priorityFilter)
+      task.priority === priorityFilter;
 
-
-    return matchesSearch && matchesFilter && matchesPriority;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
-
 
   return (
     <section className="w-full max-w-4xl">
@@ -51,8 +46,8 @@ function List() {
 
 
           <p className="mt-1 text-sm text-white/50">
-            {usertasks.length}{" "}
-            {usertasks.length === 1 ? "task" : "tasks"}
+            {filteredTasks.length}{" "}
+            {filteredTasks.length === 1 ? "task" : "tasks"}
           </p>
         </div>
       </div>
@@ -76,7 +71,7 @@ function List() {
           className="rounded-lg bg-[#23284a] px-4 py-2 text-sm text-white/70 outline-none">
 
           <option value="all">All</option>
-          <option value="pendingl">Pending</option>
+          <option value="pending">Pending</option>
           <option value="completed">Completed</option>
 
         </select>
@@ -88,7 +83,7 @@ function List() {
           <option value="all">All</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
-          <option value="">Low</option>
+          <option value="low">Low</option>
         </select>
 
         <button
@@ -115,7 +110,9 @@ function List() {
                   : ""
               }
             >
-              <Items task={task} />
+              <Items task={task}
+                onDeleteTask={onDeleteTask}
+                onUpdateTask={onUpdateTask} />
             </div>
           ))
         ) : (
@@ -134,4 +131,3 @@ function List() {
   );
 }
 export default List;
-

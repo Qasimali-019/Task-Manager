@@ -4,13 +4,24 @@ import { login, logout, createAdmin } from "./redux/authSlice";
 function AuthTest() {
 
     const dispatch = useDispatch()
-    const user = useSelector((state: any) => state.auth.user)
-    const isLoggedIn = useSelector((state: any) => state.auth.isLoggedIn)
+    const { user, isLoggedIn } = useSelector((state: {
+        auth: {
+            user: { name: string; email: string; role: "admin" | "user" } | null;
+            isLoggedIn: boolean;
+        };
+    }) => state.auth)
 
-    const handleLogin = (email: string, password: string) => {
+    const handleLogin = (email: string) => {
+        const isAdmin = email === "admin@gmail.com";
+
         dispatch(login({
-            email,
-            password
+            user: {
+                id: isAdmin ? 1 : 2,
+                name: isAdmin ? "Admin" : "Test User",
+                email,
+                role: isAdmin ? "admin" : "user"
+            },
+            token: "test-auth-token"
         }))
     }
 
@@ -42,16 +53,10 @@ function AuthTest() {
                 Create Admin
             </button>
 
-            <button onClick={() => handleLogin(
-                "qasim.aliii019@gmail.com",
-                "Q@sim1234"
-            )}>Login user</button>
+            <button onClick={() => handleLogin("qasim.aliii019@gmail.com")}>Login user</button>
 
 
-            <button onClick={() => handleLogin(
-                "admin@gmail.com",
-                "admin1234"
-            )}>Login admin</button>
+            <button onClick={() => handleLogin("admin@gmail.com")}>Login admin</button>
 
             <button onClick={handleLogout}>Logout</button>
         </div>

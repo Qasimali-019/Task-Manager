@@ -1,61 +1,73 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { findCurrentUser, login } from "../components/redux/authSlice";
+import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import type { AuthState } from "../types/task";
+import { login } from "../components/redux/authSlice";
 
 
 function Login() {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { users, user, isLoggedIn } = useSelector((state: { auth: AuthState }) => state.auth);
+    const { user, isLoggedIn } = useSelector((state: { auth: { user: { role: string } | null; isLoggedIn: boolean } }) => state.auth);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-
-    const handleLogin = (e: FormEvent) => {
+    const dispatch = useDispatch();
+    const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
+        setError("")
 
-        if (!email.trim() || !password.trim()) {  // .trim(remove spaces from start and end )
+        // .trim(remove spaces from start and end )
+        if (!email.trim() || !password.trim()) {
             setError("Email and password are reuired")
             return;
         }
 
-        const foundUser = findCurrentUser(users, email, password)
-        if (!foundUser) {
-            setError("User not found")
-            return
+
+        try {
+            const response = await fetch(
+                "http://localhost:5000/api/auth/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email.trim(),
+                        password
+                    })
+                }
+            );
+            const data = await response.json()
+            if (!response.ok) {
+                setError(data.message || "login failed")
+                return
+            }
+
+
+            console.log("Backend login response:", data);
+
+            dispatch(
+                login({
+                    user: data.user,
+                    token: data.token
+                })
+            );
+
+        } catch (error) {
+            console.error(error);
+            setError("Cannot connect to server");
         }
-
-
-        dispatch(
-            login({
-                email: email.trim(),
-                password: password.trim(),
-            })
-        );
-
-        if (foundUser.role === "admin") {
-            navigate("/admin")
-        }
-
-        else {
-            navigate("/tasks")
-        }
-
     };
+
     // if user is logged, navigating to login url will always navigate the user to task-page
     useEffect(() => {
+        if (!isLoggedIn || !user) return;
 
-        if (user || isLoggedIn) {
-            if (user?.role === "admin") {
-                navigate("/admin")
-            }
-            else {
-                navigate("/tasks")
-            }
+        if (user.role === "admin") {
+            navigate("/admin", { replace: true });
+        } else {
+            navigate("/tasks", { replace: true });
         }
 
     }, [user, isLoggedIn, navigate]);

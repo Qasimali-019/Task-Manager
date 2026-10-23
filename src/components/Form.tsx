@@ -1,45 +1,89 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { Newcontext } from "../Context/TaskContext";
-import type { AuthState } from "../types/task";
+import type { BackendTask } from "../types/task";
 
 type FormProps = {
   isOpen: boolean;
   onClose: () => void;
+  onTaskCreated: (task: BackendTask) => void;
 };
 
-const Form = ({ isOpen, onClose }: FormProps) => {
+
+
+const Form = ({ isOpen, onClose, onTaskCreated }: FormProps) => {
   const [name, setName] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
-  const [dueDate, setDueDate] = useState("")
+  const [dueDate, setDueDate] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const user = useSelector((state: { auth: AuthState }) => state.auth.user);
-  const todoContext = useContext(Newcontext);
+  const token = useSelector(
+    (state: { auth: { token: string | null } }) => state.auth.token
+  );
 
-  if (!todoContext || !isOpen) return null;
+  const handleAdd = async () => {
+    if (!name.trim() || !token || isSaving) return;
 
-  const { addTask } = todoContext;
+    setIsSaving(true);
+    setError("");
 
-  const handleAdd = () => {
-    if (name.trim() === "" || !user) return;
+    try {
+      const response = await fetch("http://localhost:5000/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: name.trim(),
+          description: "",
+          priority,
+          due_date: dueDate || null,
+        }),
+      });
 
-    addTask(name, user.email, priority, dueDate);
-    setName("")
-    setPriority("medium")
-    setDueDate("")
-    onClose();
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create task");
+      }
+
+      onTaskCreated(data.task);
+
+      setName("");
+      setPriority("medium");
+      setDueDate("");
+      onClose();
+
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleClose = () => {
+    if (isSaving) return;
+
     setName("");
+    setPriority("medium");
+    setDueDate("");
+    setError("");
     onClose();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handleAdd();
+      e.preventDefault();
+      void handleAdd();
     }
   };
+
+  if (!isOpen) return null;
+
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
@@ -147,6 +191,12 @@ const Form = ({ isOpen, onClose }: FormProps) => {
           />
         </div>
 
+        {error && (
+          <p className="mt-4 text-sm text-red-400">
+            {error}
+          </p>
+        )}
+
 
         <div className="mt-8 flex justify-end gap-3">
           <button
@@ -158,10 +208,11 @@ const Form = ({ isOpen, onClose }: FormProps) => {
           </button>
           <button
             type="button"
-            onClick={handleAdd}
-            className="rounded-xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-[#181d39] transition hover:bg-amber-300 active:scale-[0.98]"
+            onClick={() => void handleAdd()}
+            disabled={isSaving || !name.trim() || !token}
+            className="rounded-xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-[#181d39] transition hover:bg-amber-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Add Task
+            {isSaving ? "Saving..." : "Add Task"}
           </button>
         </div>
 

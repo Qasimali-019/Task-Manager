@@ -1,101 +1,58 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { AuthState, LoginData, User } from "../../types/task"
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-const storedAuth = localStorage.getItem("task-manager-auth")
+type AuthUser = {
+    id: number;
+    name: string;
+    email: string;
+    role: "admin" | "user";
+};
 
-const initialState: AuthState = storedAuth
-    ? JSON.parse(storedAuth) as AuthState
-    : {
-        users: [],
-        user: null,
-        isLoggedIn: false,
-    }
+type AuthState = {
+    user: AuthUser | null;
+    token: string | null;
+    isLoggedIn: boolean;
+};
 
-
-// made the resuable function to use in login as well 
-export const findCurrentUser = (users: User[], email: string, password: string) => {
-    const currentUser = users.find((user) =>
-        user.email.toLowerCase() === email.toLowerCase() &&
-        user.password === password
-    )
-
-    return currentUser
-}
-
-const saveAuth = (state: AuthState) => {
-    localStorage.setItem("task-manager-auth", JSON.stringify(state))
-}
+const initialState: AuthState = {
+    user: null,
+    token: null,
+    isLoggedIn: false
+};
 
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-
-        Signup: (state, action: PayloadAction<User>) => {
-            const newUser: User = {
-                ...action.payload,
-                role: "user"
-            }
-            state.users.push(newUser)
-            state.user = null
-            state.isLoggedIn = false
-            saveAuth(state)
+        login: (
+            state,
+            action: PayloadAction<{
+                user: AuthUser;
+                token: string;
+            }>
+        ) => {
+            state.user = action.payload.user;
+            state.token = action.payload.token;
+            state.isLoggedIn = true;
         },
-
 
         createAdmin: (state) => {
-
-            const adminExists = state.users.some((user) => user.role === "admin")
-
-            if (!adminExists) {
-                const admin: User = {
-                    name: "admin",
-                    email: "admin@gmail.com",
-                    password: "admin1234",
-                    role: "admin"
-                }
-                state.users.push(admin)
-                saveAuth(state)
-            }
+            state.user = {
+                id: 1,
+                name: "Admin",
+                email: "admin@gmail.com",
+                role: "admin"
+            };
+            state.token = "test-admin-token";
+            state.isLoggedIn = true;
         },
-
-        login: (state, action: PayloadAction<LoginData>) => {
-            const { email, password } = action.payload
-            const currentUser = findCurrentUser(state.users, email, password)
-
-
-            // removed pasword; so it won't show up in local storage
-            if (currentUser) {
-                state.user = currentUser
-                state.isLoggedIn = true
-            } else {
-                state.user = null
-                state.isLoggedIn = false
-            }
-
-            saveAuth(state)
-        },
-
 
         logout: (state) => {
-            state.user = null,
-                state.isLoggedIn = false
-            saveAuth(state)
-        },
-
-
-        resetPassword: (state, action: PayloadAction<{ email: string; newPassword: string; }>) => {
-
-            const { email, newPassword } = action.payload
-            const currentUser = state.users.find((user) => user.email.toLowerCase() === email.toLowerCase());
-            if (currentUser) {
-                currentUser.password = newPassword
-
-            }
-            saveAuth(state)
+            state.user = null;
+            state.token = null;
+            state.isLoggedIn = false;
         }
     }
-})
+});
 
-export const { login, logout, Signup, createAdmin, resetPassword } = authSlice.actions
-export default authSlice.reducer
+export const { login, createAdmin, logout } = authSlice.actions;
+export default authSlice.reducer;

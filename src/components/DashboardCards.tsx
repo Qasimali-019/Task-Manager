@@ -1,27 +1,49 @@
-import { useSelector } from "react-redux";
-import { Newcontext } from "../Context/TaskContext";
-import { useContext } from "react";
-import type { AuthState } from "../types/task";
 
+import type { BackendTask } from "../types/task";
 
-function DashboardCards() {
-    const context = useContext(Newcontext)
-    const user = useSelector((state: { auth: AuthState }) => state.auth.user)
-    const today = new Date().toISOString().split("T")[0] // for date
+type DashboardCardsProps = {
+    tasks: BackendTask[];
+};
 
-    if (!context || !user) {
-        return null;
-    }
-    const { task } = context
+function DashboardCards({ tasks }: DashboardCardsProps) {
 
-    const userTasks = task.filter((task) => task.userEmail === user.email)
-    const totalTasks = userTasks.length
-    const activeTasks = userTasks.filter((task) => !task.isCompleted).length
-    const completedTasks = userTasks.filter((task) => task.isCompleted).length
-    const highPriorityTasks = userTasks.filter((task) => task.priority === "high" && !task.isCompleted).length
-    const dueTodayTasks = userTasks.filter((task) => task.dueDate === today && !task.isCompleted).length
-    const overdueTasks = userTasks.filter((task) => task.dueDate < today && !task.isCompleted).length
+    // Get today's date in local time
+    const now = new Date();
 
+    const today =
+        `${now.getFullYear()}-` +
+        `${String(now.getMonth() + 1).padStart(2, "0")}-` +
+        `${String(now.getDate()).padStart(2, "0")}`;
+
+    // Calculate statistics
+    const totalTasks = tasks.length;
+
+    const activeTasks = tasks.filter(
+        (task) => task.status === "pending"
+    ).length;
+
+    const completedTasks = tasks.filter(
+        (task) => task.status === "completed"
+    ).length;
+
+    const highPriorityTasks = tasks.filter(
+        (task) =>
+            task.priority === "high" &&
+            task.status === "pending"
+    ).length;
+
+    const dueTodayTasks = tasks.filter(
+        (task) =>
+            task.due_date?.slice(0, 10) === today &&
+            task.status === "pending"
+    ).length;
+
+    const overdueTasks = tasks.filter(
+        (task) =>
+            task.due_date !== null &&
+            task.due_date.slice(0, 10) < today &&
+            task.status === "pending"
+    ).length;
 
     const cards = [
         {
@@ -29,7 +51,6 @@ function DashboardCards() {
             value: totalTasks,
             icon: ""
         },
-
         {
             title: "Active Tasks",
             value: activeTasks,
@@ -40,28 +61,22 @@ function DashboardCards() {
             value: completedTasks,
             icon: ""
         },
-
         {
-            title: "High Priority ",
+            title: "High Priority",
             value: highPriorityTasks,
             icon: ""
         },
-
         {
-            title: "Due Today ",
+            title: "Due Today",
             value: dueTodayTasks,
             icon: ""
         },
-
         {
-            title: "Over Due ",
+            title: "Over Due",
             value: overdueTasks,
             icon: ""
-        },
-
-    ]
-
-
+        }
+    ];
 
     return (
         <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -75,6 +90,7 @@ function DashboardCards() {
                             {card.icon}
                             <span>{card.title}</span>
                         </p>
+
                         <p className="text-3xl font-bold text-white">
                             {card.value}
                         </p>
@@ -83,6 +99,6 @@ function DashboardCards() {
             ))}
         </div>
     );
-};
+}
 
 export default DashboardCards;

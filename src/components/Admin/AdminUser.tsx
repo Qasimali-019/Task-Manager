@@ -1,30 +1,64 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import type { AuthState } from "../../types/task";
 import AdminTable from "./AdminTable";
+
+type AdminUser = {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+};
 
 function AdminUsers() {
     const [search, setSearch] = useState("");
+    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const token = useSelector(
+        (state: { auth: { token: string | null } }) => state.auth.token
+    );
 
-    const users = useSelector((state: { auth: AuthState }) => state.auth.users);
+    useEffect(() => {
+        const fetchUsers = async () => {
+            if (!token) {
+                setError("Please log in as admin.");
+                setLoading(false);
+                return;
+            }
 
-    const filteredUsers = users
-        .filter((user) => user.role === "user")
-        .filter((user) => {
-            if (search.trim() === "") return true;
+            try {
+                const response = await fetch("http://localhost:5000/api/admin/users", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || "Failed to fetch users");
+                }
+                setUsers(data.users);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to fetch users");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            const searchLower = search.toLowerCase();
-            const matchesName = user.name.toLowerCase().includes(searchLower);
-            const matchesEmail = user.email.toLowerCase().includes(searchLower);
+        void fetchUsers();
+    }, [token]);
 
-            return matchesName || matchesEmail;
-        });
+    const filteredUsers = users.filter((user) => {
+        const query = search.trim().toLowerCase();
+        return !query ||
+            user.name.toLowerCase().includes(query) ||
+            user.email.toLowerCase().includes(query);
+    });
 
     return (
         <div className="min-h-screen bg-[#101631] px-4 py-6 sm:px-6 sm:py-8">
             <h1 className="mb-8 text-4xl font-bold text-white">
                 Users
             </h1>
+
+            {error && <p role="alert" className="mb-4 text-red-400">{error}</p>}
 
             <div className="mb-8">
                 <input
@@ -37,7 +71,13 @@ function AdminUsers() {
             </div>
 
             <AdminTable headers={["Name", "Email", "Role"]}>
-                {filteredUsers.length === 0 ? (
+                {loading ? (
+                    <tr>
+                        <td colSpan={3} className="px-5 py-8 text-center text-gray-400">
+                            Loading users...
+                        </td>
+                    </tr>
+                ) : filteredUsers.length === 0 ? (
                     <tr>
                         <td colSpan={3} className="px-5 py-8 text-center text-gray-400">
                             No users found matching "{search}"
@@ -45,7 +85,7 @@ function AdminUsers() {
                     </tr>
                 ) : (
                     filteredUsers.map((user) => (
-                        <tr key={user.email} className="border-t border-gray-700">
+                        <tr key={user.id} className="border-t border-gray-700">
                             <td className="px-5 py-4 font-medium text-white">
                                 {user.name}
                             </td>
